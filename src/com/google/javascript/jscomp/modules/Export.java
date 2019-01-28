@@ -82,6 +82,7 @@ public abstract class Export {
 
     /** Export from an ES module. */
     private void validateEsModule(Export e) {
+      checkNotNull(e.exportNode());
       checkState(e.closureNamespace() == null);
 
       checkState(
@@ -156,7 +157,7 @@ public abstract class Export {
   /**
    * Node that this export originates from. Used for its source location.
    *
-   * <p>Null only if from non-ES module or from a missing ES module.
+   * <p>Null only if from non-ES module.
    */
   @Nullable
   public abstract Node exportNode();

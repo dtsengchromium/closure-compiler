@@ -46,7 +46,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -359,14 +358,13 @@ public class SourceFile implements StaticSourceFile, Serializable {
   private static final String JAR_URL_PREFIX = "jar:file:";
 
   private static boolean isZipEntry(String path) {
-    return path.contains(".zip!" + File.separator)
-        && (path.endsWith(".js") || path.endsWith(".js.map"));
+    return path.contains(".zip!/") && (path.endsWith(".js") || path.endsWith(".js.map"));
   }
 
   @GwtIncompatible("java.io.File")
   private static SourceFile fromZipEntry(String zipURL, Charset inputCharset) {
     checkArgument(isZipEntry(zipURL));
-    String[] components = zipURL.split(Pattern.quote(BANG_SLASH.replace("/", File.separator)));
+    String[] components = zipURL.split(BANG_SLASH);
     try {
       String zipPath = components[0];
       String relativePath = components[1];
@@ -380,8 +378,7 @@ public class SourceFile implements StaticSourceFile, Serializable {
   public static SourceFile fromZipEntry(
       String originalZipPath, String absoluteZipPath, String entryPath, Charset inputCharset)
       throws MalformedURLException {
-    String zipEntryPath =
-        JAR_URL_PREFIX + absoluteZipPath + BANG_SLASH + entryPath.replace(File.separator, "/");
+    String zipEntryPath = JAR_URL_PREFIX + absoluteZipPath + BANG_SLASH + entryPath;
     URL zipEntryUrl = new URL(zipEntryPath);
 
     return builder()

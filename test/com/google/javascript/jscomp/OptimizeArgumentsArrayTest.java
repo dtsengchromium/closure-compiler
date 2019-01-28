@@ -16,7 +16,6 @@
 
 package com.google.javascript.jscomp;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -186,11 +185,6 @@ public final class OptimizeArgumentsArrayTest extends CompilerTestCase {
   }
 
   @Test
-  public void testNegativeArgumentIndex() {
-    testSame("function badFunction() { arguments[-1]; }");
-  }
-
-  @Test
   public void testArrowFunctions() {
 
     // simple
@@ -290,13 +284,7 @@ public final class OptimizeArgumentsArrayTest extends CompilerTestCase {
 
   @Test
   public void testNoOptimizationWhenArgumentIsUsedAsFunctionCall() {
-    testSame("function f() {arguments[0]()}"); // replacing the call would change `this`
-  }
-
-  @Test
-  public void testNoOptimizationWhenArgumentsReassigned() {
-    // replacing the post-assignment `arguments[0]` with a named parameter would be incorrect
-    testSame("function f() { arguments[0]; arguments = [3, 4, 5]; arguments[0]; }");
+    testSame("function f() {arguments[0]()}");
   }
 
   @Test
@@ -305,27 +293,7 @@ public final class OptimizeArgumentsArrayTest extends CompilerTestCase {
   }
 
   @Test
-  @Ignore
-  public void testUseArgumentsToAccessParamWithDefault() {
-    // TODO(b/123256727): fix this case. right now the pass crashes
-    test("function f(x = 0) { arguments[0]; }", "function f(x = 0) { x; }");
-  }
-
-  @Test
-  @Ignore
-  public void testUseArgumentsWithRestParam() {
-    // TODO(b/123256727): fix this case. right now the pass crashes
-    test("function f(x, ...rest) { arguments[1]; }", "function f(...rest) { rest[0]; }");
-
-    test("function f(x, ...rest) { arguments[2]; }", "function f(...rest) { rest[1]; }");
-  }
-
-  @Test
-  @Ignore
-  public void testUseArgumentsWithDestructuringParam() {
-    // TODO(b/123256727): fix this case. right now the pass crashes
-    test("function f([x, y]) { arguments[1]; }", "function f([x, y], p0) { p0; }");
-
-    testSame("function f([x, y]) { arguments[0]; }");
+  public void testNegativeIndexNoCrash() {
+    testSame("function badFunction() { arguments[-1]; }");
   }
 }

@@ -32,7 +32,6 @@ import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.Token;
 import com.google.javascript.rhino.TokenStream;
 import com.google.javascript.rhino.jstype.JSType;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -93,8 +92,6 @@ class CollapseProperties implements CompilerPass {
   /** Maps names (e.g. "a.b.c") to nodes in the global namespace tree */
   private Map<String, Name> nameMap;
 
-  private final HashSet<String> dynamicallyImportedModules = new HashSet<>();
-
   CollapseProperties(AbstractCompiler compiler, PropertyCollapseLevel propertyCollapseLevel) {
     this.compiler = compiler;
     this.propertyCollapseLevel = propertyCollapseLevel;
@@ -102,10 +99,6 @@ class CollapseProperties implements CompilerPass {
 
   @Override
   public void process(Node externs, Node root) {
-    if (propertyCollapseLevel == PropertyCollapseLevel.MODULE_EXPORT) {
-      gatherDynamicallyImportedModules();
-    }
-
     GlobalNamespace namespace = new GlobalNamespace(compiler, root);
     nameMap = namespace.getNameIndex();
     globalNames = namespace.getNameForest();
@@ -132,8 +125,7 @@ class CollapseProperties implements CompilerPass {
       return false;
     }
 
-    if (propertyCollapseLevel == PropertyCollapseLevel.MODULE_EXPORT
-        && (!name.isModuleExport() || dynamicallyImportedModules.contains(name.getBaseName()))) {
+    if (propertyCollapseLevel == PropertyCollapseLevel.MODULE_EXPORT && !name.isModuleExport()) {
       return false;
     }
 
@@ -925,11 +917,5 @@ class CollapseProperties implements CompilerPass {
       id++;
     }
     return result;
-  }
-
-  private void gatherDynamicallyImportedModules() {
-    for (CompilerInput input : compiler.getInputsInOrder()) {
-      dynamicallyImportedModules.addAll(input.getDynamicRequires());
-    }
   }
 }
